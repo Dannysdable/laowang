@@ -1,13 +1,13 @@
 
 %option noyywrap nodefault yylineno case-insensitive
 %{
-	#include "pmysql.tab.h"
-	#include <stdarg.h>
-	#include <string.h>
+    #include "pmysql.tab.h"
+    #include <stdarg.h>
+    #include <string.h>
 
-	void yyerror(char *s, ...);
+    void yyerror(char *s, ...);
 
-	int oldstate;
+    int oldstate;
 %}
 
 %x COMMENT
@@ -240,83 +240,83 @@ YEAR_MONTH { return YEAR_MONTH; }
 ZEROFILL { return ZEROFILL; }}
 
  /* numbers */
--?[0-9]+								{ yylval.intval = atoi(yytext); return INTNUM; }
--?[0-9]+"."[0-9]*				|
--?"."[0-9]+						|
--?[0-9]+E[-+]?[0-9]+			|
--?[0-9]+"."[0-9]*E[-+]?[0-9]+	|
--?"."[0-9]+E[-+]?[0-9]+					{ yylval.floatval = atof(yytext); return APPROXNUM; }
+-?[0-9]+                                { yylval.intval = atoi(yytext); return INTNUM; }
+-?[0-9]+"."[0-9]*               |
+-?"."[0-9]+                     |
+-?[0-9]+E[-+]?[0-9]+            |
+-?[0-9]+"."[0-9]*E[-+]?[0-9]+   |
+-?"."[0-9]+E[-+]?[0-9]+                 { yylval.floatval = atof(yytext); return APPROXNUM; }
  /* booleans */
-TRUE									{ yylval.intval = 1; return BOOL; }
-UNKNOWN									{ yylval.intval = -1; return BOOL; }
-FALSE									{ yylval.intval = 0; return BOOL; }
+TRUE                                    { yylval.intval = 1; return BOOL; }
+UNKNOWN                                 { yylval.intval = -1; return BOOL; }
+FALSE                                   { yylval.intval = 0; return BOOL; }
  /* strings */
-'(\\.|''|[^'\n])*'				|
-\"(\\.|\"\"|[^"\n])*\"					{ yylval.strval = strdup(yytext); return STRING; }
-'(\\.|[^'\n])*$							{ yyerror("Unterminated string %s", yytext); }
-\"(\\.|[^"\n])*$						{ yyerror("Unterminated string %s", yytext); }
+'(\\.|''|[^'\n])*'              |
+\"(\\.|\"\"|[^"\n])*\"                  { yylval.strval = strdup(yytext); return STRING; }
+'(\\.|[^'\n])*$                         { yyerror("Unterminated string %s", yytext); }
+\"(\\.|[^"\n])*$                        { yyerror("Unterminated string %s", yytext); }
  /* hex strings */
-X'[0-9A-F]+'					|
-0X[0-9A-F]+								{ yylval.strval = strdup(yytext); return STRING; }
+X'[0-9A-F]+'                    |
+0X[0-9A-F]+                             { yylval.strval = strdup(yytext); return STRING; }
  /* bit strings */
-0B[01]+							|
-B'[01]+'								{ yylval.strval = strdup(yytext); return STRING;}
+0B[01]+                         |
+B'[01]+'                                { yylval.strval = strdup(yytext); return STRING;}
 
  /* operators */
 [-+&~|^/%*(),.;!] { return yytext[0]; }
-"&&"									{ return ANDOP; }
-"||"									{ return OR; }
-"="										{ yylval.subtok = 4; return COMPARISON; }
-"<=>"									{ yylval.subtok = 12; return COMPARISON; }
-">="									{ yylval.subtok = 6; return COMPARISON; }
-">"										{ yylval.subtok = 2; return COMPARISON; }
-"<="									{ yylval.subtok = 5; return COMPARISON; }
-"<"										{ yylval.subtok = 1; return COMPARISON; }
-"!="							|
-"<>"									{ yylval.subtok = 3; return COMPARISON; }
-"<<"									{ yylval.subtok = 1; return SHIFT; }
-">>"									{ yylval.subtok = 2; return SHIFT; }
-":="									{ return ASSIGN; }
+"&&"                                    { return ANDOP; }
+"||"                                    { return OR; }
+"="                                     { yylval.subtok = 4; return COMPARISON; }
+"<=>"                                   { yylval.subtok = 12; return COMPARISON; }
+">="                                    { yylval.subtok = 6; return COMPARISON; }
+">"                                     { yylval.subtok = 2; return COMPARISON; }
+"<="                                    { yylval.subtok = 5; return COMPARISON; }
+"<"                                     { yylval.subtok = 1; return COMPARISON; }
+"!="                            |
+"<>"                                    { yylval.subtok = 3; return COMPARISON; }
+"<<"                                    { yylval.subtok = 1; return SHIFT; }
+">>"                                    { yylval.subtok = 2; return SHIFT; }
+":="                                    { return ASSIGN; }
 
  /* functions */
-SUBSTR(ING)?/"("						{ return FSUBSTRING; }
-TRIM/"("								{ return FTRIM; }
-DATE_ADD/"("							{ return FDATE_ADD; }
-DATE_SUB/"("							{ return FDATE_SUB; }
+SUBSTR(ING)?/"("                        { return FSUBSTRING; }
+TRIM/"("                                { return FTRIM; }
+DATE_ADD/"("                            { return FDATE_ADD; }
+DATE_SUB/"("                            { return FDATE_SUB; }
  /* check trailing context manually */
-COUNT									{ int c = input();
-										  unput(c);
-										  if(c == '(') return FCOUNT;
-										  yylval.strval = strdup(yytext);
-										  return NAME;
-										}
+COUNT                                   { int c = input();
+                                          unput(c);
+                                          if(c == '(') return FCOUNT;
+                                          yylval.strval = strdup(yytext);
+                                          return NAME;
+                                        }
  /* names */
-[A-Za-z][A-Za-z0-9_]*					{ yylval.strval = strdup(yytext); return NAME; }
-`[^`/\\.\n]+`							{ yylval.strval = strdup(yytext+1);
-										  yylval.strval[yyleng-2] = 0;
-										  return NAME;
-										}
-`[^`\n]*$								{ yyerror("unterminated quoted name %s", yytext); }
+[A-Za-z][A-Za-z0-9_]*                   { yylval.strval = strdup(yytext); return NAME; }
+`[^`/\\.\n]+`                           { yylval.strval = strdup(yytext+1);
+                                          yylval.strval[yyleng-2] = 0;
+                                          return NAME;
+                                        }
+`[^`\n]*$                               { yyerror("unterminated quoted name %s", yytext); }
 
  /* user variables */
-@[0-9a-z_.$]+					|
-@\"[^"\n]+\"					|
-@`[^`\n]+`						|
-@'[^'\n]+'								{ yylval.strval = strdup(yytext+1); return USERVAR; }
-@\"[^"\n]*$						|
-@`[^`\n]*$						|
-@'[^'\n]*$								{ yyerror("unterminated quoted user variable %s", yytext); }
+@[0-9a-z_.$]+                   |
+@\"[^"\n]+\"                    |
+@`[^`\n]+`                      |
+@'[^'\n]+'                              { yylval.strval = strdup(yytext+1); return USERVAR; }
+@\"[^"\n]*$                     |
+@`[^`\n]*$                      |
+@'[^'\n]*$                              { yyerror("unterminated quoted user variable %s", yytext); }
 
  /* comments */
-#.*										;
-"--"[ \t].*								;
-"/*"									{ oldstate = YY_START; BEGIN COMMENT; }
-<COMMENT>"*/"							{ BEGIN oldstate; }
-<COMMENT>.|\n							;
+#.*                                     ;
+"--"[ \t].*                             ;
+"/*"                                    { oldstate = YY_START; BEGIN COMMENT; }
+<COMMENT>"*/"                           { BEGIN oldstate; }
+<COMMENT>.|\n                           ;
 <COMMENT><<EOF>> { yyerror("unclosed comment"); }
  /* everything else */
-[ \t\n]									/* whitespace */
-.										{ yyerror("mystery character '%c'", *yytext); }
+[ \t\n]                                 /* whitespace */
+.                                       { yyerror("mystery character '%c'", *yytext); }
 
 %%
 
