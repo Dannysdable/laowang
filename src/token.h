@@ -9,18 +9,18 @@
 #define TOKEN_H
 
 typedef enum {
-    T_Le = 256, T_Ge, T_Eq, T_Ne, T_And, T_Or, T_IntConstant,
+    T_Is = 256, T_Le, T_Ge, T_Eq, T_Ne, T_And, T_Or, T_IntConstant,
     T_StringConstant, T_Identifier, T_Void, T_Int, T_While,
     T_If, T_Else, T_Return, T_Break, 
-    T_Select, T_From, T_Where
+    T_Select, T_From, T_Where, T_Content
 } TokenType;
 
 static void print_token(int token) {
     static char* token_strs[] = {
-        "T_Le", "T_Ge", "T_Eq", "T_Ne", "T_And", "T_Or", "T_IntConstant",
+        "T_Is", "T_Le", "T_Ge", "T_Eq", "T_Ne", "T_And", "T_Or", "T_IntConstant",
         "T_StringConstant", "T_Identifier", "T_Void", "T_Int", "T_While",
         "T_If", "T_Else", "T_Return", "T_Break", 
-        "T_Select", "T_From", "T_Where"
+        "T_Select", "T_From", "T_Where", "T_Content"
     };
 
     if (token < 256) {

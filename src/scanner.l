@@ -15,6 +15,7 @@ SINGLE_COMMENT1     ("//"[^\n]*)
 SINGLE_COMMENT2     ("#"[^\n]*)
 /* 匹配SQL中的注释 */
 SINGLE_COMMENT3     ("/*"(([^\*]*(\*[^\/])?)*)"*/")
+SINGLE_COMMENT4     \"(\\.|[^"])*\"
 
 %%
 [\n]                { cur_line_num++;                       }
@@ -23,8 +24,11 @@ SINGLE_COMMENT3     ("/*"(([^\*]*(\*[^\/])?)*)"*/")
 {SINGLE_COMMENT2}   { /* skip for single line commnet */    }
 {SINGLE_COMMENT3}   { /* skip for single line commnet */    }
 
+{SINGLE_COMMENT4}   { return T_Content;         }
+
 {OPERATOR}          { return yytext[0];         }   
 
+"="                 { return T_Is;              }
 "<="                { return T_Le;              }
 ">="                { return T_Ge;              }
 "=="                { return T_Eq;              }
