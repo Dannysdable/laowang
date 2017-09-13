@@ -1,3 +1,4 @@
+/* 去掉告警,defined but not use */
 %option nounput
 %option noinput
 
