@@ -12,7 +12,7 @@ typedef enum {
     T_Is = 256, T_Le, T_Ge, T_Eq, T_Ne, T_And, T_Or, T_IntConstant,
     T_StringConstant, T_Identifier, T_Void, T_Int, T_While,
     T_If, T_Else, T_Return, T_Break, 
-    T_Select, T_From, T_Where, T_Content
+    T_Select, T_From, T_Where, T_Content, T_Value
 } TokenType;
 
 static void print_token(int token) {
@@ -20,7 +20,7 @@ static void print_token(int token) {
         "T_Is", "T_Le", "T_Ge", "T_Eq", "T_Ne", "T_And", "T_Or", "T_IntConstant",
         "T_StringConstant", "T_Identifier", "T_Void", "T_Int", "T_While",
         "T_If", "T_Else", "T_Return", "T_Break", 
-        "T_Select", "T_From", "T_Where", "T_Content"
+        "T_Select", "T_From", "T_Where", "T_Content", "T_Value"
     };
 
     if (token < 256) {

@@ -1,3 +1,6 @@
+%option nounput
+%option noinput
+
 %{
 #include "token.h"
 int cur_line_num = 1;
@@ -15,7 +18,10 @@ SINGLE_COMMENT1     ("//"[^\n]*)
 SINGLE_COMMENT2     ("#"[^\n]*)
 /* 匹配SQL中的注释 */
 SINGLE_COMMENT3     ("/*"(([^\*]*(\*[^\/])?)*)"*/")
+/* 匹配双引号 */
 SINGLE_COMMENT4     \"(\\.|[^"])*\"
+/* 匹配单引号 */
+SINGLE_COMMENT5     \'(\\.|[^'])*\'
 
 %%
 [\n]                { cur_line_num++;                       }
@@ -25,6 +31,7 @@ SINGLE_COMMENT4     \"(\\.|[^"])*\"
 {SINGLE_COMMENT3}   { /* skip for single line commnet */    }
 
 {SINGLE_COMMENT4}   { return T_Content;         }
+{SINGLE_COMMENT5}   { return T_Value;           }
 
 {OPERATOR}          { return yytext[0];         }   
 
@@ -61,7 +68,7 @@ SINGLE_COMMENT4     \"(\\.|[^"])*\"
 int main(int argc, char* argv[]) {
     int token;
     init_scanner();
-    while (token = yylex()) {
+    while ((token = yylex()) > 0) {
         print_token(token);
         puts(yytext);
     }
