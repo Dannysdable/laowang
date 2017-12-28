@@ -1,3 +1,4 @@
+
 /* 去掉告警,defined but not use */
 %option nounput
 %option noinput
@@ -13,7 +14,6 @@ void lex_error(char* msg, int line);
 INTEGER             ([0-9]+)
 UNTERM_STRING       (\042[^\042\n]*)
 STRING              (\042[^\042\n]*\042)
-STRING2             ([_a-zA-Z0-9].[_a-zA-z0-9]*)
 IDENTIFIER          ([_a-zA-Z][_a-zA-Z0-9]*)
 OPERATOR            ([+*-/%=,;!<>(){}])
 SINGLE_COMMENT1     ("//"[^\n]*)
@@ -41,7 +41,8 @@ SINGLE_COMMENT5     \'(\\.|[^'])*\'
 "<="                { return T_Le;              }
 ">="                { return T_Ge;              }
 "=="                { return T_Eq;              }
-"!="                { return T_Ne;              }
+"!="                |
+"<>"                { return T_Ne;              }
 "&&"                { return T_And;             }
 "||"                { return T_Or;              }
 "void"              { return T_Void;            }
@@ -83,7 +84,7 @@ SINGLE_COMMENT5     \'(\\.|[^'])*\'
 
 {INTEGER}           { return T_IntConstant;     }
 {STRING}            { return T_StringConstant;  }
-{STRING2}           { return T_StringConstant2; }
+-?[_a-zA-Z0-9]+"."[_a-zA-z0-9]* { return T_StringConstant2; }
 {IDENTIFIER}        { return T_Identifier;      }
 
 <<EOF>>             { return 0; }
