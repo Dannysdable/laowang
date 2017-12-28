@@ -1,5 +1,72 @@
-select /* 1
-23 */ 
-    column1 from /*test*/ table1.column2 where id="2"
-
-select column1 from /*test*/ table1.column2 where id='2'
+select OBJOID,
+       CLSOID,
+       RUNTIME,
+       PRI,
+       JOBTYPE,
+       SCHLIM,
+       WT,
+       INST,
+       RUNNOW,
+       ENQ_SCHLIM
+  from (select a.obj# OBJOID,
+               a.class_oid CLSOID,
+               decode(bitand(a.flags, 16384),
+                      0,
+                      a.next_run_date,
+                      a.last_enabled_time) RUNTIME,
+               (2 * a.priority +
+               decode(bitand(a.job_status, 4),
+                       0,
+                       0,
+                       decode(a.running_instance, 1, -1, 1))) PRI,
+               1 JOBTYPE,
+               decode(a.schedule_limit,
+                      NULL,
+                      decode(bitand(a.flags, 4194304),
+                             4194304,
+                             p.schedule_limit,
+                             NULL),
+                      a.schedule_limit) SCHLIM,
+               a.job_weight WT,
+               decode(a.running_instance, NULL, 0, a.running_instance) INST,
+               decode(bitand(a.flags, 16384), 0, 0, 1) RUNNOW,
+               decode(bitand(a.job_status, 8388608), 0, 0, 1) ENQ_SCHLIM
+          from scheduler_job     a,
+               scheduler_program p,
+               db_database       v,
+               db_instance       i
+         where a.program_oid = p.obj#(+)
+           and bitand(a.job_status, 515) = 1
+           and bitand(a.flags, 1048576) = 0
+           and ((bitand(a.flags, 134217728 + 268435456) = 0) or
+               (bitand(a.job_status, 1024) <> 0))
+           and bitand(a.flags, 4096) = 0
+           and (a.next_run_date <= to_date('2017-12-31', 'yyyy-mm-dd') or
+               bitand(a.flags, 16384) <> 0)
+           and a.instance_id is null
+           and (a.class_oid is null or
+               (a.class_oid is not null and
+               a.class_oid in (select b.obj#
+                                   from scheduler_class b
+                                  where b.affinity is null)))
+           and (a.database_role = v.database_role or
+               (a.database_role is null and v.database_role = 'PRIMARY'))
+           and (i.logins = 'ALLOWED' or bitand(a.flags, 17179869184) <> 0)
+        union all
+        select d.obj#,
+               0,
+               d.next_start_date + d.duration,
+               0,
+               4,
+               numtodsinterval(0, 'minute'),
+               1,
+               0,
+               0,
+               0
+          from scheduler_window d, db_instance i
+         where bitand(d.flags, 1) <> 0
+           and bitand(d.flags, 2) = 0
+           and bitand(d.flags, 64) = 0
+           and d.next_start_date <= to_date('2017-12-31', 'yyyy-mm-dd')
+           and i.logins = 'ALLOWED')
+ order by RUNTIME, JOBTYPE, CLSOID, PRI, WT DESC, OBJOID;
