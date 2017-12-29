@@ -70,3 +70,8 @@ select OBJOID,
            and d.next_start_date <= to_date('2017-12-31', 'yyyy-mm-dd')
            and i.logins = 'ALLOWED')
  order by RUNTIME, JOBTYPE, CLSOID, PRI, WT DESC, OBJOID;
+
+select * from abc where i != 9 and age<>10;
+
+select abc.id from (select index as id from aaa) abc;
+
